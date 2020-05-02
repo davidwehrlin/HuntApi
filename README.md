@@ -1,0 +1,1 @@
+API for Hunt-ai game leaderboard
