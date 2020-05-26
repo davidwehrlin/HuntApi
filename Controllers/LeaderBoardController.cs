@@ -23,21 +23,19 @@ namespace hunt_api.Controllers
         {
             _context.Items.Add(item);
             await _context.SaveChangesAsync();
-
             return CreatedAtAction(nameof(GetItem), new { id = item.Id}, item);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Item>> GetItem(long id)
         {
-            var todoItem = await _context.Items.FindAsync(id);
-
-            if (todoItem == null)
+            var item = await _context.Items.FindAsync(id);
+            if (item == null)
             {
                 return NotFound();
             }
 
-            return todoItem;
+            return item;
         }
 
         [HttpGet]
@@ -45,7 +43,14 @@ namespace hunt_api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<Item>>> GetTodoItems()
         {
-            return await _context.Items.ToListAsync();
+            List<Item> list = await _context.Items.ToListAsync();
+            list.Sort((x, y) => y.Score.CompareTo(x.Score));
+            while (list.Count > 10) {
+                _context.Remove(list[list.Count -1]);
+                list.RemoveAt(list.Count - 1);
+            }
+            await _context.SaveChangesAsync();
+            return list;
         }
 
     }
