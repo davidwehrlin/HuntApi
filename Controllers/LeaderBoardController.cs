@@ -21,6 +21,9 @@ namespace hunt_api.Controllers
         [HttpPost]
         public async Task<ActionResult<Item>> PostTodoItem(Item item)
         {
+            if (item.Name.Length > 32) {
+                return BadRequest(new Exception("Length of Name too long"));
+            }
             _context.Items.Add(item);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetItem), new { id = item.Id}, item);
